@@ -19,11 +19,13 @@ app.use(cors());
 // superagent is going to get us data
 const superagent = require('superagent');
 
-// ===============================================
+// ============Constants==ENV=====================
 
 const PORT = process.env.PORT || 3002;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
-// ===============================================
+const MOVIES_API_KEY = process.env.MOVIES_API_KEY;
+
+// ============Routes=============================
 
 // proof of life
 app.get('/', function (request, response) {
@@ -32,6 +34,49 @@ app.get('/', function (request, response) {
 
 //use weather data
 app.get('/weather', getWeather);
+
+//use movie data
+app.get('/movies', getMovies);
+
+// ===============================================
+
+function getMovies(request, response) {
+  const url = `https://api.themoviedb.org/3/movie/popular?api_key=${MOVIES_API_KEY}`;
+  const locationSearch = request.query.city;
+  const query = {
+    key: MOVIES_API_KEY,
+    query: locationSearch
+  }
+
+  //The .query() method accepts objects, which when used with the GET method will form a query-string. The following will produce the path /search?query=Manny&range=1..5&order=desc.
+
+  superagent
+  .get(url)
+  .query(query)
+  .then(superagentResults => {
+    //results is found in the moviedb docs
+    const movieResults = superagentResults.body.results;
+    const movieResultsArray = movieResults.map(movie => new Movies(movie));
+    console.log('movie results', movieResultsArray)
+    response.status(200).send(movieResultsArray);
+  })
+  .catch(err => {
+    console.log('something went wrong with superagent call');
+    response.status(500).send('we messed up');
+  })
+}
+
+function Movies(obj){
+  this.title = obj.original_title;
+  this.overview = obj.overview;
+  this.average_votes = obj.vote_average;
+  this.total_votes = obj.vote_count;
+  this.image_url = `https://image.tmdb.org/t/p/w500/${obj.poster_path}`;
+  this.popularity = obj.popularity;
+  this.released_on = obj.release_date;
+}
+
+// ===============================================
 
 function getWeather(request, response) {
   const { latitude, longitude } = request.query;
@@ -68,23 +113,7 @@ function Weather(obj){
   this.date = obj.valid_date;
 }
 
-// function handleWeather(request, response) {
-//   console.log('made it to weather');
-
-//   const forecastArray = weather.data.map(day => {
-//     return new Forecast(day, weather.city_name, weather.lat, weather.lon);
-//   });
-//   response.status(200).send(forecastArray);
-// }
-
-// function Forecast(obj, city, lat, lon) {
-//   this.desc = obj.weather.description;
-//   this.date = obj.datetime;
-//   this.city = city;
-//   this.lat = lat;
-//   this.lon = lon;
-// }
- 
+// ===========HEYLISTEN===========================
 
 // turn on the server
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
