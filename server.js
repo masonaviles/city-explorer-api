@@ -31,23 +31,39 @@ app.get('/', function (request, response) {
 });
 
 //use weather data
-app.get('/weather', handleGetWeather);
+app.get('/weather', getWeather);
 
-function handleGetWeather(req, res){
-  const cityName = req.query.search_query;
-  const url = `https://api.weatherbit.io/v2.0/forecast/daily?city=${cityName}&key=${WEATHER_API_KEY}`;
-  superagent
-    .get(url)
-    .then(stuffThatComesBack => {
-      const output = stuffThatComesBack.body.data.map(day => new Weather(day));
-      res.send(output);
-    }).catch(errorThatComesBack => {
-      res.status(500).send(errorThatComesBack);
-    });
+function getWeather(request, response) {
+  const { latitude, longitude } = request.query;
+  // go to the weather API
+  getWeatherFromAPI(latitude, longitude, response);
 }
-function Weather(data){
-  this.forecast = data.weather.description;
-  this.time = data.datetime;
+
+function getWeatherFromAPI(latitude, longitude, response) {
+  const url = 'http://api.weatherbit.io/v2.0/forecast/daily';
+  const query = {
+    key: process.env.WEATER_API_KEY,
+    lat: latitude,
+    lon: longitude
+  }
+
+  superagent
+  .get(url)
+  .query(query)
+  .then(superagentResults => {
+    const results = superagentResults.body.data;
+    const weatherResults = results.map(day => new Weather(day));
+    response.status(200).send(weatherResults);
+  })
+  .catch(err => {
+    console.log('something went wrong with superagent call');
+    response.status(500).send('we messed up');
+  });
+}
+
+function Weather(obj){
+  this.description =  `${obj.high_temp || 'no temp available'} with ${obj.weather.description.toLowerCase()}`;
+  this.date = obj.valid_date;
 }
 
 // function handleWeather(request, response) {
