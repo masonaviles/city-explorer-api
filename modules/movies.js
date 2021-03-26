@@ -1,11 +1,12 @@
-'use strict';
+'use strict'
+
 const superagent = require('superagent');
 
 function getMovies(request, response) {
-  const url = `https://api.themoviedb.org/3/movie/popular?api_key=${MOVIES_API_KEY}`;
+  const url = `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.MOVIES_API_KEY}`;
   const locationSearch = request.query.city;
   const query = {
-    key: MOVIES_API_KEY,
+    key: process.env.MOVIES_API_KEY,
     query: locationSearch
   }
 
