@@ -25,6 +25,9 @@ const PORT = process.env.PORT || 3002;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const MOVIES_API_KEY = process.env.MOVIES_API_KEY;
 
+// const weather = require('./modules/weather');
+// const getMovies = require('./movies');
+
 // ============Routes=============================
 
 // proof of life
