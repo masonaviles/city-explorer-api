@@ -42,7 +42,7 @@ function getWeather(request, response) {
 function getWeatherFromAPI(latitude, longitude, response) {
   const url = 'http://api.weatherbit.io/v2.0/forecast/daily';
   const query = {
-    key: process.env.WEATER_API_KEY,
+    key: process.env.WEATHER_API_KEY,
     lat: latitude,
     lon: longitude
   }
@@ -53,7 +53,9 @@ function getWeatherFromAPI(latitude, longitude, response) {
   .then(superagentResults => {
     const results = superagentResults.body.data;
     const weatherResults = results.map(day => new Weather(day));
+    console.log('weather results', weatherResults)
     response.status(200).send(weatherResults);
+    console.log('200! weather results', weatherResults);
   })
   .catch(err => {
     console.log('something went wrong with superagent call');
