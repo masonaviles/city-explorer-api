@@ -6,8 +6,8 @@ let cache = require('./cache.js');
 function getMovies(request, response) {
   const locationSearch = request.query.city;
   
-  if(cache[movie] !== undefined && cache[movie].createdAt > Date.now() - 300000){
-    response.status(200).send(cache[movie]);
+  if(cache[locationSearch] !== undefined && cache[locationSearch].createdAt > Date.now() - 300000){
+    response.status(200).send(cache[locationSearch]);
   } else {
     const url = `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.MOVIES_API_KEY}`;
     const query = {
@@ -23,11 +23,11 @@ function getMovies(request, response) {
       const movieResults = superagentResults.body.results;
       const movieResultsArray = movieResults.map(movie => new Movies(movie));
       console.log('movie results', movieResultsArray);
-      cache[movie] = movieResultsArray;
+      cache[locationSearch] = movieResultsArray;
       response.status(200).send(movieResultsArray);
     })
     .catch(err => {
-      console.log('something went wrong with superagent call');
+      console.log('something went wrong with superagent call in movies');
       response.status(500).send('we messed up');
     })
   }
