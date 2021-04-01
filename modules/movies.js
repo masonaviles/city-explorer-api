@@ -1,31 +1,37 @@
 'use strict'
 
 const superagent = require('superagent');
+let cache = require('./cache.js');
 
 function getMovies(request, response) {
-  const url = `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.MOVIES_API_KEY}`;
   const locationSearch = request.query.city;
-  const query = {
-    key: process.env.MOVIES_API_KEY,
-    query: locationSearch
+  
+  if(cache[movie] !== undefined && cache[movie].createdAt > Date.now() - 300000){
+    response.status(200).send(cache[movie]);
+  } else {
+    const url = `https://api.themoviedb.org/3/movie/popular?api_key=${process.env.MOVIES_API_KEY}`;
+    const query = {
+      key: process.env.MOVIES_API_KEY,
+      query: locationSearch
+    }
+    
+    superagent
+    .get(url)
+    .query(query)
+    .then(superagentResults => {
+      //results is found in the moviedb docs
+      const movieResults = superagentResults.body.results;
+      const movieResultsArray = movieResults.map(movie => new Movies(movie));
+      console.log('movie results', movieResultsArray);
+      cache[movie] = movieResultsArray;
+      response.status(200).send(movieResultsArray);
+    })
+    .catch(err => {
+      console.log('something went wrong with superagent call');
+      response.status(500).send('we messed up');
+    })
   }
 
-  //The .query() method accepts objects, which when used with the GET method will form a query-string. The following will produce the path /search?query=Manny&range=1..5&order=desc.
-
-  superagent
-  .get(url)
-  .query(query)
-  .then(superagentResults => {
-    //results is found in the moviedb docs
-    const movieResults = superagentResults.body.results;
-    const movieResultsArray = movieResults.map(movie => new Movies(movie));
-    console.log('movie results', movieResultsArray)
-    response.status(200).send(movieResultsArray);
-  })
-  .catch(err => {
-    console.log('something went wrong with superagent call');
-    response.status(500).send('we messed up');
-  })
 }
 
 function Movies(obj){
