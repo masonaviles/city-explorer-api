@@ -1,7 +1,5 @@
 'use strict'
 
-function cache() {
-  const cache = {};
-}
+let cache = {};
 
 module.exports = cache;

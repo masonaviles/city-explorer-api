@@ -1,9 +1,7 @@
 'use strict'
 
 const superagent = require('superagent');
-// let cache = require('./cache.js');
-
-const cache = {};
+let cache = require('./cache.js');
 
 function weatherHandler(request, response) {
   const { latitude, longitude } = request.query;
@@ -53,6 +51,7 @@ function parseWeather(weatherData) {
     const weatherSummaries = weatherData.data.map(day => {
       return new Weather(day);
     });
+    console.log('weatherSummer: ',weatherSummaries);
     return Promise.resolve(weatherSummaries);
   } catch (e) {
     return Promise.reject(e);
