@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 3002;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const MOVIES_API_KEY = process.env.MOVIES_API_KEY;
 
-const getWeather = require('./modules/weather');
+const weatherHandler = require('./modules/weather');
 const getMovies = require('./modules/movies');
 
 // ============Routes=============================
@@ -36,7 +36,8 @@ app.get('/', function (request, response) {
 });
 
 //use weather data
-app.get('/weather', getWeather);
+// app.get('/weather', getWeather);
+app.get('/weather', weatherHandler);
 
 //use movie data
 app.get('/movies', getMovies);
